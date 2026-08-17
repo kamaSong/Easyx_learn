@@ -132,95 +132,7 @@ if (++count % 5 == 0) {      // 每5帧切换一次
     current_anim++;
 }
 current_anim = current_anim % ANIMITION_COUNT;  // 0~5 循环
-完整代码
-cpp
-#include<graphics.h>
-#include<string>
-using namespace std;
 
-int current_anim = 0;
-const int ANIMITION_COUNT = 6;
-IMAGE player_animition[ANIMITION_COUNT];
-
-const int PLAYER_WIDTH = 50;
-const int PLAYER_HEIGHT = 50;
-const int WINDOW_WIDTH = 1270;
-const int WINDOW_HEIGHT = 720;
-
-POINT player_pos = { 500,500 };
-const int PLAYER_SPEED = 3;
-
-bool is_moving_up = false;
-bool is_moving_down = false;
-bool is_moving_left = false;
-bool is_moving_right = false;
-
-void load_animition() {
-    for (int i = 0; i < ANIMITION_COUNT; i++) {
-        wstring path = L"player_left_" + to_wstring(i) + L".png";
-        loadimage(&player_animition[i], path.c_str());
-    }
-}
-
-int main() {
-    initgraph(WINDOW_WIDTH, WINDOW_HEIGHT);
-    bool running = true;
-    ExMessage msg;
-    load_animition();
-    BeginBatchDraw();
-
-    while (running) {
-        DWORD startTime = GetTickCount();
-
-        while (peekmessage(&msg)) {
-            if (msg.message == WM_KEYDOWN) {
-                switch (msg.vkcode) {
-                case 'W': is_moving_up = true; break;
-                case 'S': is_moving_down = true; break;
-                case 'A': is_moving_left = true; break;
-                case 'D': is_moving_right = true; break;
-                }
-            }
-            else if (msg.message == WM_KEYUP) {
-                switch (msg.vkcode) {
-                case 'W': is_moving_up = false; break;
-                case 'S': is_moving_down = false; break;
-                case 'A': is_moving_left = false; break;
-                case 'D': is_moving_right = false; break;
-                }
-            }
-        }
-
-        if (is_moving_up) player_pos.y -= PLAYER_SPEED;
-        if (is_moving_down) player_pos.y += PLAYER_SPEED;
-        if (is_moving_left) player_pos.x -= PLAYER_SPEED;
-        if (is_moving_right) player_pos.x += PLAYER_SPEED;
-
-        if (player_pos.x < 0) player_pos.x = 0;
-        if (player_pos.x > WINDOW_WIDTH - PLAYER_WIDTH) player_pos.x = WINDOW_WIDTH - PLAYER_WIDTH;
-        if (player_pos.y < 0) player_pos.y = 0;
-        if (player_pos.y > WINDOW_HEIGHT - PLAYER_HEIGHT) player_pos.y = WINDOW_HEIGHT - PLAYER_HEIGHT;
-
-        static int count = 0;
-        if (++count % 5 == 0) {
-            current_anim++;
-        }
-        current_anim = current_anim % ANIMITION_COUNT;
-
-        cleardevice();
-        putimage(player_pos.x, player_pos.y, &player_animition[current_anim]);
-        FlushBatchDraw();
-
-        DWORD endTime = GetTickCount();
-        DWORD deltaTime = endTime - startTime;
-        if (deltaTime < 1000 / 60) {
-            Sleep((1000 / 60) - deltaTime);
-        }
-    }
-
-    EndBatchDraw();
-    return 0;
-}
 易错点 ⚠️
 问题	原因	解决
 按键没反应	用了 W 而不是 'W'	加单引号 'W'
@@ -238,11 +150,6 @@ int main() {
 
 ✅ 边界限制：用常量和 if 判断
 
-明日计划
-□ 多方向动画（左/右/上/下）
-□ 敌人系统
-□ 碰撞检测
-□ 攻击系统
 运行方法
 把 player_left_0~5.png 放在 main.cpp 同目录
 
