@@ -1,49 +1,67 @@
-📚 键盘控制 + 序列帧动画 —— 学习笔记
-今日学习目标
-掌握键盘控制角色移动（WASD）
+# 📚 键盘控制 + 序列帧动画 —— 学习笔记
 
-学会用 bool 变量解决按键卡顿问题
+## 今日学习目标
 
-学会边界限制，防止角色跑出窗口
+- 掌握键盘控制角色移动（WASD）
+- 学会用 bool 变量解决按键卡顿问题
+- 学会边界限制，防止角色跑出窗口
+- 巩固序列帧动画切换
 
-巩固序列帧动画切换
+---
 
-核心概念
-游戏主循环的四个步骤
+## 核心概念
+
+### 游戏主循环的四个步骤
+处理输入（键盘/鼠标）
+
+更新逻辑（移动/动画）
+
+绘制画面
+
+帧率控制
+
 text
-1. 处理输入（键盘/鼠标） → 2. 更新逻辑（移动/动画） → 3. 绘制画面 → 4. 帧率控制
-代码结构
-text
+
+---
+
+## 代码结构
 main.cpp
 ├── 头文件（graphics.h / string）
 ├── 全局变量
-│   ├── current_anim         // 当前播放到第几帧
-│   ├── ANIMITION_COUNT      // 总帧数（6张）
-│   ├── player_animition[]   // 存储6张图片
-│   ├── player_pos           // 角色位置（POINT类型）
-│   ├── PLAYER_SPEED         // 移动速度
-│   ├── WINDOW_WIDTH/HEIGHT  // 窗口尺寸
-│   ├── PLAYER_WIDTH/HEIGHT  // 角色尺寸
-│   └── is_moving_*          // 移动状态（bool）
+│ ├── current_anim // 当前播放到第几帧
+│ ├── ANIMITION_COUNT // 总帧数（6张）
+│ ├── player_animition[] // 存储6张图片
+│ ├── player_pos // 角色位置（POINT类型）
+│ ├── PLAYER_SPEED // 移动速度
+│ ├── WINDOW_WIDTH/HEIGHT // 窗口尺寸
+│ ├── PLAYER_WIDTH/HEIGHT // 角色尺寸
+│ └── is_moving_* // 移动状态（bool）
 ├── load_animition()
-│   └── 循环加载 player_left_0~5.png
+│ └── 循环加载 player_left_0~5.png
 ├── main()
-│   ├── 初始化窗口
-│   ├── 加载动画
-│   ├── 主循环
-│   │   ├── 帧率控制（60FPS）
-│   │   ├── 消息处理（peekmessage）
-│   │   │   ├── 按下（WM_KEYDOWN）→ bool = true
-│   │   │   └── 松开（WM_KEYUP）→ bool = false
-│   │   ├── 移动更新（根据bool状态）
-│   │   ├── 边界限制（防止出界）
-│   │   ├── 动画更新（每5帧切一次）
-│   │   ├── 清屏 + 绘制当前帧
-│   │   └── 双缓冲显示
-│   └── 结束
-关键代码解析
-1. 键盘控制（bool 状态法）
-cpp
+│ ├── 初始化窗口
+│ ├── 加载动画
+│ ├── 主循环
+│ │ ├── 帧率控制（60FPS）
+│ │ ├── 消息处理（peekmessage）
+│ │ │ ├── 按下（WM_KEYDOWN）→ bool = true
+│ │ │ └── 松开（WM_KEYUP）→ bool = false
+│ │ ├── 移动更新（根据bool状态）
+│ │ ├── 边界限制（防止出界）
+│ │ ├── 动画更新（每5帧切一次）
+│ │ ├── 清屏 + 绘制当前帧
+│ │ └── 双缓冲显示
+│ └── 结束
+
+text
+
+---
+
+## 关键代码解析
+
+### 1. 键盘控制（bool 状态法）
+
+```cpp
 // 移动状态
 bool is_moving_up = false;
 bool is_moving_down = false;
@@ -114,7 +132,94 @@ if (++count % 5 == 0) {      // 每5帧切换一次
     current_anim++;
 }
 current_anim = current_anim % ANIMITION_COUNT;  // 0~5 循环
+完整代码
+cpp
+#include<graphics.h>
+#include<string>
+using namespace std;
 
+int current_anim = 0;
+const int ANIMITION_COUNT = 6;
+IMAGE player_animition[ANIMITION_COUNT];
+
+const int PLAYER_WIDTH = 50;
+const int PLAYER_HEIGHT = 50;
+const int WINDOW_WIDTH = 1270;
+const int WINDOW_HEIGHT = 720;
+
+POINT player_pos = { 500,500 };
+const int PLAYER_SPEED = 3;
+
+bool is_moving_up = false;
+bool is_moving_down = false;
+bool is_moving_left = false;
+bool is_moving_right = false;
+
+void load_animition() {
+    for (int i = 0; i < ANIMITION_COUNT; i++) {
+        wstring path = L"player_left_" + to_wstring(i) + L".png";
+        loadimage(&player_animition[i], path.c_str());
+    }
+}
+
+int main() {
+    initgraph(WINDOW_WIDTH, WINDOW_HEIGHT);
+    bool running = true;
+    ExMessage msg;
+    load_animition();
+    BeginBatchDraw();
+
+    while (running) {
+        DWORD startTime = GetTickCount();
+
+        while (peekmessage(&msg)) {
+            if (msg.message == WM_KEYDOWN) {
+                switch (msg.vkcode) {
+                case 'W': is_moving_up = true; break;
+                case 'S': is_moving_down = true; break;
+                case 'A': is_moving_left = true; break;
+                case 'D': is_moving_right = true; break;
+                }
+            }
+            else if (msg.message == WM_KEYUP) {
+                switch (msg.vkcode) {
+                case 'W': is_moving_up = false; break;
+                case 'S': is_moving_down = false; break;
+                case 'A': is_moving_left = false; break;
+                case 'D': is_moving_right = false; break;
+                }
+            }
+        }
+
+        if (is_moving_up) player_pos.y -= PLAYER_SPEED;
+        if (is_moving_down) player_pos.y += PLAYER_SPEED;
+        if (is_moving_left) player_pos.x -= PLAYER_SPEED;
+        if (is_moving_right) player_pos.x += PLAYER_SPEED;
+
+        if (player_pos.x < 0) player_pos.x = 0;
+        if (player_pos.x > WINDOW_WIDTH - PLAYER_WIDTH) player_pos.x = WINDOW_WIDTH - PLAYER_WIDTH;
+        if (player_pos.y < 0) player_pos.y = 0;
+        if (player_pos.y > WINDOW_HEIGHT - PLAYER_HEIGHT) player_pos.y = WINDOW_HEIGHT - PLAYER_HEIGHT;
+
+        static int count = 0;
+        if (++count % 5 == 0) {
+            current_anim++;
+        }
+        current_anim = current_anim % ANIMITION_COUNT;
+
+        cleardevice();
+        putimage(player_pos.x, player_pos.y, &player_animition[current_anim]);
+        FlushBatchDraw();
+
+        DWORD endTime = GetTickCount();
+        DWORD deltaTime = endTime - startTime;
+        if (deltaTime < 1000 / 60) {
+            Sleep((1000 / 60) - deltaTime);
+        }
+    }
+
+    EndBatchDraw();
+    return 0;
 }
 易错点 ⚠️
 问题	原因	解决
@@ -150,6 +255,3 @@ EasyX 官方文档
 
 学习日期：2026-08-17
 状态：✅ 已掌握键盘控制 + 边界限制
-
-明天继续加油！🚀
-
