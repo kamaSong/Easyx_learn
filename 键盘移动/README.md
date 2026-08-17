@@ -25,34 +25,36 @@ text
 ---
 
 ## 代码结构
+
+```text
 main.cpp
 ├── 头文件（graphics.h / string）
 ├── 全局变量
-│ ├── current_anim // 当前播放到第几帧
-│ ├── ANIMITION_COUNT // 总帧数（6张）
-│ ├── player_animition[] // 存储6张图片
-│ ├── player_pos // 角色位置（POINT类型）
-│ ├── PLAYER_SPEED // 移动速度
-│ ├── WINDOW_WIDTH/HEIGHT // 窗口尺寸
-│ ├── PLAYER_WIDTH/HEIGHT // 角色尺寸
-│ └── is_moving_* // 移动状态（bool）
+│   ├── current_anim         // 当前播放到第几帧
+│   ├── ANIMITION_COUNT      // 总帧数（6张）
+│   ├── player_animition[]   // 存储6张图片
+│   ├── player_pos           // 角色位置（POINT类型）
+│   ├── PLAYER_SPEED         // 移动速度
+│   ├── WINDOW_WIDTH/HEIGHT  // 窗口尺寸
+│   ├── PLAYER_WIDTH/HEIGHT  // 角色尺寸
+│   └── is_moving_*          // 移动状态（bool）
 ├── load_animition()
-│ └── 循环加载 player_left_0~5.png
+│   └── 循环加载 player_left_0~5.png
 ├── main()
-│ ├── 初始化窗口
-│ ├── 加载动画
-│ ├── 主循环
-│ │ ├── 帧率控制（60FPS）
-│ │ ├── 消息处理（peekmessage）
-│ │ │ ├── 按下（WM_KEYDOWN）→ bool = true
-│ │ │ └── 松开（WM_KEYUP）→ bool = false
-│ │ ├── 移动更新（根据bool状态）
-│ │ ├── 边界限制（防止出界）
-│ │ ├── 动画更新（每5帧切一次）
-│ │ ├── 清屏 + 绘制当前帧
-│ │ └── 双缓冲显示
-│ └── 结束
-
+│   ├── 初始化窗口
+│   ├── 加载动画
+│   ├── 主循环
+│   │   ├── 帧率控制（60FPS）
+│   │   ├── 消息处理（peekmessage）
+│   │   │   ├── 按下（WM_KEYDOWN）→ bool = true
+│   │   │   └── 松开（WM_KEYUP）→ bool = false
+│   │   ├── 移动更新（根据bool状态）
+│   │   ├── 边界限制（防止出界）
+│   │   ├── 动画更新（每5帧切一次）
+│   │   ├── 清屏 + 绘制当前帧
+│   │   └── 双缓冲显示
+│   └── 结束
+```
 text
 
 ---
